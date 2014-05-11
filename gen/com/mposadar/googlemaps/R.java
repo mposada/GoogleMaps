@@ -188,10 +188,13 @@ containing a value of this type.
         public static final int iron=0x7f02001d;
     }
     public static final class id {
-        public static final int action_settings=0x7f050009;
+        public static final int action_settings=0x7f05000c;
         public static final int btn_G_NORMAL_MAP=0x7f050006;
         public static final int btn_G_SATELLITE_MAP =0x7f050007;
         public static final int btn_G_TERRAIN_MAP=0x7f050008;
+        public static final int btn_iniciar=0x7f05000a;
+        public static final int btn_parar=0x7f05000b;
+        public static final int edit_direccion=0x7f050009;
         public static final int hybrid=0x7f050004;
         public static final int map=0x7f050005;
         public static final int none=0x7f050000;
@@ -231,7 +234,9 @@ containing a value of this type.
         [CHAR LIMIT=70] 
          */
         public static final int auth_client_using_bad_version_title=0x7f060013;
+        public static final int btn_map_iniciar=0x7f06001f;
         public static final int btn_map_normal=0x7f06001c;
+        public static final int btn_map_parar=0x7f060020;
         public static final int btn_map_satelite=0x7f06001d;
         public static final int btn_map_terrain=0x7f06001e;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it

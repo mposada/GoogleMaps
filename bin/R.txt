@@ -56,10 +56,13 @@ int drawable ic_plusone_small_off_client 0x7f02001a
 int drawable ic_plusone_standard_off_client 0x7f02001b
 int drawable ic_plusone_tall_off_client 0x7f02001c
 int drawable iron 0x7f02001d
-int id action_settings 0x7f050009
+int id action_settings 0x7f05000c
 int id btn_G_NORMAL_MAP 0x7f050006
 int id btn_G_SATELLITE_MAP  0x7f050007
 int id btn_G_TERRAIN_MAP 0x7f050008
+int id btn_iniciar 0x7f05000a
+int id btn_parar 0x7f05000b
+int id edit_direccion 0x7f050009
 int id hybrid 0x7f050004
 int id map 0x7f050005
 int id none 0x7f050000
@@ -76,7 +79,9 @@ int string auth_client_needs_update_title 0x7f060016
 int string auth_client_play_services_err_notification_msg 0x7f060017
 int string auth_client_requested_by_msg 0x7f060018
 int string auth_client_using_bad_version_title 0x7f060013
+int string btn_map_iniciar 0x7f06001f
 int string btn_map_normal 0x7f06001c
+int string btn_map_parar 0x7f060020
 int string btn_map_satelite 0x7f06001d
 int string btn_map_terrain 0x7f06001e
 int string common_google_play_services_enable_button 0x7f060006

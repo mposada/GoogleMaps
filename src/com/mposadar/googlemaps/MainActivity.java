@@ -13,14 +13,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,6 +35,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 public class MainActivity extends Activity {
 	
 	private GoogleMap map;
+	private Marker marker;
 	private static LatLng BOGOTA = new LatLng(4.60971,-74.08175);
 	private static LatLng BARRANQUILLA = new LatLng(10.9642172, -74.7970353);
 	private static LatLng MIAMI = new LatLng(25.789102, -80.20427819999998);
@@ -39,11 +43,17 @@ public class MainActivity extends Activity {
 	private double longitude = -74.08175;
 	private static int maxResults = 1;
 	private LocationManager locManager;
+	private PolylineOptions rectOptions;
+	private Polyline polyline;
+	private Location loc_for_distance = new Location("");
+	EditText edit_direccion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        edit_direccion = (EditText) findViewById(R.id.edit_direccion);
         
         // OBTENER UNA REFERENCIA AL LOCATION MANAGER
  		locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -53,17 +63,32 @@ public class MainActivity extends Activity {
  		if (loc != null) {
  			latitude = loc.getLatitude();
  	 		longitude = loc.getLongitude();
+ 	 		Log.i("Posicion vieja", "" + latitude + ", " + longitude);
 		}
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        map.setPadding(0, 50, 0, 0);
+        // DA UN PADDING AL MAPA
+        map.setPadding(0, 100, 0, 50);
         map.setMyLocationEnabled(true);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(BOGOTA, 14));
+        if (loc != null) {
+        	map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
+            
+            loc_for_distance.setLatitude(latitude);
+            loc_for_distance.setLongitude(longitude);
+		}
+        else {
+        	map.moveCamera(CameraUpdateFactory.newLatLngZoom(BOGOTA, 14));
+            
+            loc_for_distance.setLatitude(4.60971);
+            loc_for_distance.setLongitude(-74.08175);
+        }
         map.getUiSettings().setZoomControlsEnabled(true);
         map.addMarker(new MarkerOptions()
         .position(new LatLng(latitude, longitude))
         .title("Marker Bogotá")
         .snippet("Población 6,763 millones")
+        //.flat(true) //ROTA JUNTO CON EL MAPA
+        .draggable(true)
         .icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
         
         // CLIC EN EL MARCADOR
@@ -77,14 +102,47 @@ public class MainActivity extends Activity {
 			}
 		});
         
+        // CUANDO EN EL MARKER SE APLICA DRAGGABLE
+        map.setOnMarkerDragListener(new OnMarkerDragListener() {
+			
+			@Override
+			public void onMarkerDragStart(Marker arg0) {
+				edit_direccion.setText("Cambiando dirección...");
+			}
+			
+			@Override
+			public void onMarkerDragEnd(Marker arg0) {
+				
+				Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+				
+				try {
+					List<Address> adreses = geocoder.getFromLocation(arg0.getPosition().latitude, arg0.getPosition().longitude, maxResults);
+					
+					//DIRECCION
+					edit_direccion.setText(adreses.get(0).getAddressLine(0));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			
+			@Override
+			public void onMarkerDrag(Marker arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+       
+        
         // DA LAS COORDENADAS DEL POLYLINE
-        PolylineOptions rectOptions = new PolylineOptions()
-        .add(BOGOTA)
-        .add(BARRANQUILLA)
-        .add(MIAMI);
+        rectOptions = new PolylineOptions();
+//        .add(BOGOTA)
+//        .add(BARRANQUILLA)
+//        .add(MIAMI);
         
         // DIBUJA EL POLYLINE
-        Polyline polyline = map.addPolyline(rectOptions);
+        // polyline = map.addPolyline(rectOptions);
         
         // ACCEDER A DISTINTOS RECURSOS QUE NOS OFRECE LA GEOLOCALIZACION
         Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
@@ -100,12 +158,17 @@ public class MainActivity extends Activity {
 			// PAIS
 			System.out.println(adreses.get(0).getAddressLine(2));
 			
+			edit_direccion.setText(adreses.get(0).getAddressLine(0));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
         
-        registerLocation();
-        
+    }
+    
+    public void IniciarMyLocationListener(View view)
+    {
+    	registerLocation();
     }
     
     // CREAMOS UNA CLASE A PARTIR DEL OBJETO Criteria PARA
@@ -133,9 +196,7 @@ public class MainActivity extends Activity {
 
   		@Override
   		public void onLocationChanged(Location location) {
-  			// TODO Auto-generated method stub
-  			LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-  			map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16));
+  			MostrarPosicion(location);
   		}
 
   		@Override
@@ -172,6 +233,42 @@ public class MainActivity extends Activity {
     public void MapaTerrain(View view)
     {
     	map.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+    }
+    
+    private void MostrarPosicion(Location location)
+    {
+    	if(marker != null)
+    	{
+    		marker.remove();
+    	}
+    	
+    	if (location != null) {
+    		
+    		LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+    		
+    		rectOptions.add(latlng);
+    		polyline = map.addPolyline(rectOptions);
+    		
+    		map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16));
+    		
+    		marker = map.addMarker(new MarkerOptions()
+            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+            .title("Miguel!")
+            .snippet("Nueva ubicación")
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
+    		
+    		// DEVUELVE LA DISTANCIA APROXIMADA EN METROS DONDE loc_for_distance GUARDA LA POSICION INICIAL
+    		// GETDISTANCEBETWEEN ES PARA CALCULAR DISTANCIAS MUY GRANDES
+    		double distance = location.distanceTo(loc_for_distance);
+    		
+    		Toast.makeText(getApplicationContext(), "Distancia = " + distance, Toast.LENGTH_LONG).show();
+    		
+		}
+    }
+    
+    public void DetenerMyLocationListener(View view)
+    {
+    	locManager.removeUpdates(new MyLocationListener());
     }
 
     @Override

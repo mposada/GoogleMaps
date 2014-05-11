@@ -7,5 +7,7 @@
     <string name="btn_map_normal">Normal</string>
     <string name="btn_map_satelite">Satellite</string>
     <string name="btn_map_terrain">Terrain</string>
+    <string name="btn_map_iniciar">Iniciar</string>
+    <string name="btn_map_parar">Parar</string>
 
 </resources>
